@@ -5,18 +5,66 @@ import SensorCard from "@/components/SensorCard";
 import StatusCard from "@/components/StatusCard";
 
 export default function Home() {
+  const luzBaja = sensorData.luz < 30;
+  const estadoLuz = luzBaja ? "Baja" : "Normal";
+  const ledsActivos = luzBaja;
   const sueloSeco = sensorData.humedad < 40;
+
+  const aguaBaja = sensorData.agua < 20;
+  let estadoTitulo = "SISTEMA ESTABLE";
+  let estadoMensaje = "Todo funcionando correctamente";
+
+  if (aguaBaja) {
+    estadoTitulo = "TANQUE CRÍTICO";
+    estadoMensaje = "Revisar nivel de agua inmediatamente";
+  }
+
+  else if (sueloSeco) {
+    estadoTitulo = "RIEGO ACTIVADO";
+    estadoMensaje = "El sistema activó el riego automático";
+  }
+
+  else if (luzBaja) {
+    estadoTitulo = "ILUMINACIÓN AUTOMÁTICA";
+    estadoMensaje = "LEDs activados automáticamente";
+  }
+
+  const riegoBloqueado = aguaBaja;
   return (
     <main className="min-h-screen bg-[#e8f5e9] flex flex-col items-center px-4 pt-4 pb-28">
 
       <Header />
 
-      {/* Tarjeta principal */}
-      <div className="w-full max-w-md mt-2">
-        <StatusCard
-          titulo="CULTIVO ESTABLE"
-          mensaje="Todo está funcionando correctamente"
-        />
+      {/* Estado inteligente */}
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-md p-5 mt-2">
+
+        <div className="flex items-center gap-3">
+
+          <div
+            className={`w-4 h-4 rounded-full ${aguaBaja
+              ? "bg-red-500"
+              : sueloSeco
+                ? "bg-yellow-500"
+                : luzBaja
+                  ? "bg-orange-400"
+                  : "bg-green-500"
+              }`}
+          />
+
+          <h2 className="text-2xl font-semibold text-gray-800">
+            {estadoTitulo}
+          </h2>
+
+        </div>
+
+        <p className="text-gray-600 mt-3 text-sm">
+          {estadoMensaje}
+        </p>
+
+        <p className="text-gray-400 text-xs mt-4">
+          Actualizado hace unos segundos
+        </p>
+
       </div>
 
       {/* Imagen */}
@@ -24,7 +72,7 @@ export default function Home() {
         <img
           src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?q=80&w=1200&auto=format&fit=crop"
           alt="Cultivo"
-          className="w-full h-28 object-cover rounded-3xl shadow-lg"
+          className="w-full h-20 object-cover rounded-3xl shadow-md"
         />
       </div>
 
@@ -33,41 +81,35 @@ export default function Home() {
 
         <SensorCard
           titulo="Suelo"
-          valor={sensorData.humedad}
+          valor={`${sensorData.humedad}%`}
           color="bg-green-100"
+          icono="💧"
         />
 
         <SensorCard
           titulo="Luz"
           valor={sensorData.luz}
           color="bg-yellow-100"
+          icono="☀️"
         />
+
         <SensorCard
           titulo="Temperatura"
-          valor={sensorData.temperatura}
+          valor={`${sensorData.temperatura}°C`}
           color="bg-red-100"
+          icono="🌡️"
         />
 
         <SensorCard
           titulo="Agua en tanque"
-          valor={sensorData.agua}
+          valor={`${sensorData.agua}%`}
           color="bg-blue-100"
+          icono="🚰"
         />
-
       </div>
-
       {/* Botón */}
-      <button
-        className={`w-full mt-3 py-3 rounded-2xl text-white font-bold text-lg shadow-lg transition ${sueloSeco
-            ? "bg-red-600"
-            : "bg-green-600"
-          }`}
-      >
-        {sueloSeco
-          ? "🚨 RIEGO ACTIVADO"
-          : "💧 REGAR MANUALMENTE"}
-      </button>
 
+      <BottomNav />
     </main>
   );
 }

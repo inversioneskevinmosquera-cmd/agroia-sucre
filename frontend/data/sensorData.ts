@@ -1,8 +1,9 @@
 export const sensorData = {
-    humedad: 70,
-    luz: "Normal",
-    temperatura: 24,
-    agua: 65,
-    ia: "Óptimo",
+    humedad: 30,
+    temperatura: 64,
+    agua: 2,
+  
+    luz: 20, // porcentaje real
+  
     riegoAutomatico: true,
-};
+  };
