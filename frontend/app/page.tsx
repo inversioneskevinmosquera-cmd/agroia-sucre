@@ -1,3 +1,4 @@
+import { evaluarSistema } from "@/lib/agroiaEngine";
 import { sensorData } from "@/data/sensorData";
 import BottomNav from "@/components/BottomNav";
 import Header from "@/components/Header";
@@ -5,31 +6,14 @@ import SensorCard from "@/components/SensorCard";
 import StatusCard from "@/components/StatusCard";
 
 export default function Home() {
-  const luzBaja = sensorData.luz < 30;
-  const estadoLuz = luzBaja ? "Baja" : "Normal";
-  const ledsActivos = luzBaja;
-  const sueloSeco = sensorData.humedad < 40;
-
-  const aguaBaja = sensorData.agua < 20;
-  let estadoTitulo = "SISTEMA ESTABLE";
-  let estadoMensaje = "Todo funcionando correctamente";
-
-  if (aguaBaja) {
-    estadoTitulo = "TANQUE CRÍTICO";
-    estadoMensaje = "Revisar nivel de agua inmediatamente";
-  }
-
-  else if (sueloSeco) {
-    estadoTitulo = "RIEGO ACTIVADO";
-    estadoMensaje = "El sistema activó el riego automático";
-  }
-
-  else if (luzBaja) {
-    estadoTitulo = "ILUMINACIÓN AUTOMÁTICA";
-    estadoMensaje = "LEDs activados automáticamente";
-  }
-
-  const riegoBloqueado = aguaBaja;
+  const {
+    sueloSeco,
+    luzBaja,
+    aguaCritica,
+    temperaturaAlta,
+    estadoTitulo,
+    estadoMensaje,
+  } = evaluarSistema();
   return (
     <main className="min-h-screen bg-[#e8f5e9] flex flex-col items-center px-4 pt-4 pb-28">
 
@@ -41,7 +25,7 @@ export default function Home() {
         <div className="flex items-center gap-3">
 
           <div
-            className={`w-4 h-4 rounded-full ${aguaBaja
+            className={`w-4 h-4 rounded-full ${aguaCritica
               ? "bg-red-500"
               : sueloSeco
                 ? "bg-yellow-500"

@@ -1,12 +1,19 @@
+import { evaluarSistema } from "@/lib/agroiaEngine";
 import BottomNav from "@/components/BottomNav";
 import SystemCard from "@/components/SystemCard";
 import { sensorData } from "@/data/sensorData";
 
 export default function SistemaPage() {
 
-  const sueloSeco = sensorData.humedad < 40;
-  const aguaBaja = sensorData.agua < 20;
-  const luzBaja = sensorData.luz < 30;
+  const {
+    sueloSeco,
+    luzBaja,
+    aguaCritica,
+    temperaturaAlta,
+    eventos,
+    estadoTitulo,
+    estadoMensaje,
+  } = evaluarSistema();
   return (
     <main className="min-h-screen bg-[#e8f5e9] p-4 pb-24">
 
@@ -30,45 +37,38 @@ export default function SistemaPage() {
         </div>
 
       </div>
+      <div className="bg-white rounded-3xl p-4 shadow-sm mb-6">
 
-      {/* Eventos activos */}
-
-      <div className="mb-6">
-
-        <h2 className="text-lg font-semibold text-gray-700 mb-3">
-          Eventos activos
+        <h2 className="text-lg font-semibold text-gray-800 mb-3">
+          Estado técnico
         </h2>
 
-        <div className="space-y-3">
+        <div className="space-y-2 text-sm text-gray-700">
 
-          {sueloSeco && (
-            <div className="bg-red-100 rounded-2xl p-4 shadow-sm">
-              🌱 Riego automático activado
-            </div>
-          )}
+          <div className="flex justify-between">
+            <span>Riego automático</span>
+            <span className={sueloSeco ? "text-green-600 font-semibold" : ""}>
+              {sueloSeco ? "Activo" : "En espera"}
+            </span>
+          </div>
 
-          {luzBaja && (
-            <div className="bg-yellow-100 rounded-2xl p-4 shadow-sm">
-              💡 LEDs activados automáticamente
-            </div>
-          )}
+          <div className="flex justify-between">
+            <span>Iluminación LED</span>
+            <span className={luzBaja ? "text-yellow-600 font-semibold" : ""}>
+              {luzBaja ? "Encendida" : "Apagada"}
+            </span>
+          </div>
 
-          {aguaBaja && (
-            <div className="bg-blue-100 rounded-2xl p-4 shadow-sm">
-              🚨 Nivel de agua crítico
-            </div>
-          )}
-
-          {!sueloSeco && !luzBaja && !aguaBaja && (
-            <div className="bg-green-100 rounded-2xl p-4 shadow-sm">
-              ✅ No hay eventos críticos
-            </div>
-          )}
+          <div className="flex justify-between">
+            <span>Tanque de agua</span>
+            <span className={aguaCritica ? "text-red-600 font-semibold" : ""}>
+              {aguaCritica ? "Crítico" : "Normal"}
+            </span>
+          </div>
 
         </div>
 
       </div>
-
 
       {/* Grid */}
       <div className="grid grid-cols-2 gap-4">
@@ -107,7 +107,7 @@ export default function SistemaPage() {
           titulo="Agua"
           valor={`${sensorData.agua}%`}
           descripcion={
-            aguaBaja
+            aguaCritica
               ? "Nivel crítico"
               : "Nivel suficiente"
           }

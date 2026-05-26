@@ -1,59 +1,111 @@
-import { sensorData } from "@/data/sensorData";
+import { evaluarSistema } from "@/lib/agroiaEngine";
 import BottomNav from "@/components/BottomNav";
-import AlertCard from "@/components/AlertCard";
+
 
 export default function AlertasPage() {
-  const sueloSeco = sensorData.humedad < 40;
+  const {
+    eventos,
+    sueloSeco,
+    luzBaja,
+    aguaCritica,
+    temperaturaAlta,
+  } = evaluarSistema();
   return (
     <main className="min-h-screen bg-[#e8f5e9] p-5 pb-24">
 
-      <h1 className="text-4xl font-bold text-green-700 mb-8">
-        Alertas del sistema
-      </h1>
+      <div className="flex items-center gap-3 mb-8">
+
+        <img
+          src="/logo.png"
+          alt="Logo"
+          className="w-14 h-14 rounded-2xl"
+        />
+
+        <div>
+
+          <h1 className="text-2xl font-bold text-green-700">
+            Alertas inteligentes
+          </h1>
+
+          <p className="text-sm text-gray-600">
+            Monitoreo predictivo agrícola
+          </p>
+
+        </div>
+
+      </div>
 
       <div className="space-y-4">
 
+        <div className="space-y-4">
 
-        {sueloSeco && (
-          <div className="bg-red-100 p-4 rounded-2xl shadow">
-            <h2 className="font-bold text-red-700">
-              ⚠️ Suelo muy seco
-            </h2>
+          {
+            eventos.length > 0 ? (
 
-            <p className="text-gray-700 mt-2">
-              El sistema activó el riego automáticamente.
-            </p>
-          </div>
-        )}
-        
+              eventos.map((evento, index) => (
 
-        <AlertCard
-          titulo="Nivel de agua bajo"
-          mensaje="Revisar tanque de agua pronto."
-          color="bg-yellow-100"
-          icono="💧"
-        />
+                <div
+                  key={index}
+                  className={`rounded-3xl p-5 shadow-sm border-l-4
 
-        <AlertCard
-          titulo="Luz baja"
-          mensaje="Los LEDs se encendieron automáticamente."
-          color="bg-blue-100"
-          icono="💡"
-        />
+    ${evento.tipo === "critico"
+                      ? "bg-red-100 border-red-600"
 
-        <AlertCard
-          titulo="Posible sequía"
-          mensaje="La humedad del suelo ha disminuido constantemente."
-          color="bg-red-100"
-          icono="⚠️"
-        />
+                      : evento.tipo === "advertencia"
+                        ? "bg-yellow-100 border-yellow-500"
 
-        <AlertCard
-          titulo="Ahorro de agua"
-          mensaje="El sistema utilizó 28% menos agua esta semana."
-          color="bg-green-100"
-          icono="💧"
-        />
+                        : "bg-blue-100 border-blue-500"
+                    }
+
+  `}
+                >
+
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    {evento.mensaje}
+                  </h2>
+
+                  <p className="text-gray-600 text-sm mt-2">
+
+                    {
+                      evento.mensaje.includes("humedad")
+                        ? "Se recomienda revisar el sistema de riego."
+
+                        : evento.mensaje.includes("temperatura")
+                          ? "El cultivo presenta aumento térmico progresivo."
+
+                          : evento.mensaje.includes("agua")
+                            ? "El tanque requiere recarga inmediata."
+
+                            : evento.mensaje.includes("LED")
+                              ? "La iluminación automática permanece activa."
+
+                              : "AGROIA detectó actividad relevante."
+                    }
+
+                  </p>
+
+                </div>
+
+              ))
+
+            ) : (
+
+              <div className="bg-green-100 rounded-3xl p-5 shadow-sm">
+
+                <h2 className="text-lg font-semibold text-green-800">
+                  Sistema estable
+                </h2>
+
+                <p className="text-green-700 mt-2">
+                  No se detectan riesgos importantes.
+                </p>
+
+              </div>
+
+            )
+          }
+
+        </div>
 
       </div>
 
