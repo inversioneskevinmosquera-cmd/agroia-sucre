@@ -1,9 +1,16 @@
-export const sensorData = {
-  humedad: 10,
-  temperatura: 42,
-  agua: 5,
-
-  luz: 15, // porcentaje real
-
-  riegoAutomatico: true,
+export let sensorData = {
+  humedad: 55,
+  temperatura: 26,
+  agua: 80,
 };
+
+export function actualizarSensores(
+  nuevosDatos: Partial<typeof sensorData>
+) {
+
+  sensorData = {
+    ...sensorData,
+    ...nuevosDatos,
+  };
+
+}

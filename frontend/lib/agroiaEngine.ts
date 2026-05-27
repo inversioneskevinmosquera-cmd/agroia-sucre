@@ -5,9 +5,10 @@ export function evaluarSistema() {
 
     // Evaluaciones principales
     const sueloSeco = sensorData.humedad < 40;
-    const luzBaja = sensorData.luz < 30;
     const aguaCritica = sensorData.agua < 20;
     const temperaturaAlta = sensorData.temperatura > 35;
+    const riegoActivo =
+        sueloSeco && !temperaturaAlta;
 
     // Eventos activos
     const eventos = [];
@@ -27,34 +28,29 @@ export function evaluarSistema() {
         registroAnterior &&
         ultimoRegistro.temperatura > registroAnterior.temperatura;
 
-    if (sueloSeco) {
+    if (sueloSeco && !temperaturaAlta) {
         eventos.push({
-            mensaje: "🌱 Riego automático activado",
+            mensaje:
+                "🌱 El sistema activó el riego automáticamente para evitar sequedad en el cultivo.",
             tipo: "info",
-        });
-    }
-
-    if (luzBaja) {
-        eventos.push({
-            mensaje: "💡 LEDs activados automáticamente",
-            tipo: "advertencia",
         });
     }
 
     if (aguaCritica) {
         eventos.push({
-            mensaje: "🚨 Nivel de agua crítico",
+            mensaje:
+                "🚨 El tanque tiene un nivel bajo de agua y podría afectar próximos ciclos de riego.",
             tipo: "critico",
         });
     }
 
     if (temperaturaAlta) {
         eventos.push({
-            mensaje: "🌡️ Temperatura elevada",
+            mensaje:
+                "🌡️ El sistema detectó temperatura elevada y recomienda evitar riego intenso.",
             tipo: "advertencia",
         });
     }
-
     // Estado principal
     let estadoTitulo = "SISTEMA ESTABLE";
     let estadoMensaje = "Todo funcionando correctamente";
@@ -64,40 +60,54 @@ export function evaluarSistema() {
         estadoMensaje = "Revisar nivel de agua inmediatamente";
     }
 
+    else if (temperaturaAlta) {
+        estadoTitulo = "🌡️ RIEGO SUSPENDIDO";
+        estadoMensaje =
+            "El sistema detuvo el riego para proteger el cultivo del calor extremo";
+    }
+
     else if (sueloSeco) {
         estadoTitulo = "🌱 RIEGO AUTOMÁTICO";
-        estadoMensaje = "Humedad baja detectada";
-    }
-
-    else if (luzBaja) {
-        estadoTitulo = "💡 ILUMINACIÓN AUTOMÁTICA";
-        estadoMensaje = "LEDs activados automáticamente";
-    }
-
-    else if (temperaturaAlta) {
-        estadoTitulo = "🌡️ TEMPERATURA ELEVADA";
-        estadoMensaje = "Temperatura superior a lo recomendado";
+        estadoMensaje =
+            "El sistema activó el riego por baja humedad del suelo";
     }
     if (humedadDisminuyendo) {
         eventos.push({
-            mensaje: "📉 La humedad disminuye progresivamente",
+            mensaje: "📉 El suelo está perdiendo humedad de forma continua.",
             tipo: "advertencia",
         });
     }
 
     if (temperaturaSubiendo) {
         eventos.push({
-            mensaje: "📈 La temperatura continúa aumentando",
+            mensaje: "📈 La temperatura sigue aumentando y podría afectar el cultivo.",
             tipo: "advertencia",
         });
     }
+    let ultimaAccion = "Monitoreo automático activo";
+
+    if (sueloSeco && !temperaturaAlta) {
+        ultimaAccion =
+            "🌱 El sistema activó el riego automáticamente para mantener la humedad adecuada.";
+    }
+
+    else if (temperaturaAlta) {
+        ultimaAccion =
+            "🌡️ El sistema suspendió el riego debido a la temperatura elevada.";
+    }
+
+    else if (aguaCritica) {
+        ultimaAccion =
+            "🚨 El sistema detectó nivel crítico de agua en el tanque.";
+    }
     return {
         sueloSeco,
-        luzBaja,
         aguaCritica,
         temperaturaAlta,
+        riegoActivo,
         eventos,
         estadoTitulo,
         estadoMensaje,
+        ultimaAccion,
     };
 }
