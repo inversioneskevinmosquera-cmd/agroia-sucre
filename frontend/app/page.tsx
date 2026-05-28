@@ -19,11 +19,7 @@ export default function Home() {
     riegoActivo,
     estadoTitulo,
     estadoMensaje,
-  } = evaluarSistema({
-    humedad: 55,
-    temperatura: 26,
-    agua: 80,
-  });
+  } = evaluarSistema(datosSensores);
   useEffect(() => {
 
     const obtenerDatos = async () => {
