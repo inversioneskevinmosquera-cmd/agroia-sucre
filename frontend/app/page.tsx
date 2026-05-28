@@ -1,15 +1,17 @@
 "use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
+import { useEffect, useState } from "react";
+import { fetchSensorData } from "@/lib/fetchSensorData";
 import { evaluarSistema } from "@/lib/agroiaEngine";
-import { sensorData } from "@/data/sensorData";
 import BottomNav from "@/components/BottomNav";
 import Header from "@/components/Header";
 import SensorCard from "@/components/SensorCard";
 
 export default function Home() {
-  const router = useRouter();
+  const [datosSensores, setDatosSensores] = useState({
+    humedad: 55,
+    temperatura: 26,
+    agua: 80,
+  });
   const {
     sueloSeco,
     aguaCritica,
@@ -17,16 +19,38 @@ export default function Home() {
     riegoActivo,
     estadoTitulo,
     estadoMensaje,
-  } = evaluarSistema();
+  } = evaluarSistema({
+    humedad: 55,
+    temperatura: 26,
+    agua: 80,
+  });
   useEffect(() => {
 
+    const obtenerDatos = async () => {
+
+      const data = await fetchSensorData();
+
+      if (data) {
+
+        setDatosSensores(data);
+
+      }
+
+    };
+
+    obtenerDatos();
+
     const interval = setInterval(() => {
-      router.refresh();
-    }, 1000);
+
+      obtenerDatos();
+
+    }, 3000);
 
     return () => clearInterval(interval);
 
-  }, [router]);
+  }, []);
+  console.log(datosSensores);
+  console.log("PAGE REAL");
   return (
     <main className="min-h-screen bg-[#e8f5e9] flex flex-col items-center px-4 pt-4 pb-28">
 
@@ -78,21 +102,21 @@ export default function Home() {
 
         <SensorCard
           titulo="Suelo"
-          valor={`${sensorData.humedad}%`}
+          valor={`${datosSensores.humedad}%`}
           color="bg-green-100"
           icono="💧"
         />
 
         <SensorCard
           titulo="Temperatura"
-          valor={`${sensorData.temperatura}°C`}
+          valor={`${datosSensores.temperatura}°C`}
           color="bg-red-100"
           icono="🌡️"
         />
 
         <SensorCard
           titulo="Agua en tanque"
-          valor={`${sensorData.agua}%`}
+          valor={`${datosSensores.agua}%`}
           color="bg-blue-100"
           icono="🚰"
         />
