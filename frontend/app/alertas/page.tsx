@@ -1,26 +1,118 @@
 "use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { evaluarSistema } from "@/lib/agroiaEngine";
+
+import { useEffect, useState } from "react";
+
 import BottomNav from "@/components/BottomNav";
 
+import { evaluarSistema } from "@/lib/agroiaEngine";
+
+type DatosSensores = {
+  humedad: number;
+  temperatura: number;
+  agua: number;
+};
+
 export default function AlertasPage() {
-  const router = useRouter();
-  const {
-    eventos,
-    aguaCritica,
-    temperaturaAlta,
-    ultimaAccion,
-  } = evaluarSistema();
+
+  const [modoDemo, setModoDemo] = useState(false);
+
+  const [datos, setDatos] = useState<DatosSensores>({
+    humedad: 55,
+    temperatura: 26,
+    agua: 80,
+  });
+
+  // =========================
+  // CARGAR SENSORES REALES
+  // =========================
+
+  async function cargarSensores() {
+
+    if (modoDemo) return;
+
+    try {
+
+      const response = await fetch("/api/sensores");
+
+      const data = await response.json();
+
+      setDatos(data);
+
+    } catch (error) {
+
+      console.log("Error sensores:", error);
+
+    }
+
+  }
+
   useEffect(() => {
 
+    cargarSensores();
+
     const interval = setInterval(() => {
-      router.refresh();
-    }, 1000);
+
+      cargarSensores();
+
+    }, 2000);
 
     return () => clearInterval(interval);
 
-  }, [router]);
+  }, [modoDemo]);
+
+  // =========================
+  // SIMULACIONES
+  // =========================
+
+  function simularSequía() {
+
+    setModoDemo(true);
+
+    setDatos({
+      humedad: 10,
+      temperatura: 34,
+      agua: 50,
+    });
+  }
+
+  function simularCalor() {
+
+    setModoDemo(true);
+
+    setDatos({
+      humedad: 40,
+      temperatura: 42,
+      agua: 70,
+    });
+  }
+
+  function simularTanqueCritico() {
+
+    setModoDemo(true);
+
+    setDatos({
+      humedad: 45,
+      temperatura: 26,
+      agua: 5,
+    });
+  }
+
+  function volverModoReal() {
+
+    setModoDemo(false);
+
+    cargarSensores();
+  }
+
+  // =========================
+  // MOTOR IA
+  // =========================
+
+  const {
+    eventos,
+    ultimaAccion,
+  } = evaluarSistema(datos);
+
   return (
 
     <main className="min-h-screen bg-[#e8f5e9] p-5 pb-24">
@@ -49,7 +141,53 @@ export default function AlertasPage() {
 
       </div>
 
-      {/* ÚLTIMA ACCIÓN AUTOMÁTICA */}
+      {/* BOTONES */}
+
+      <div className="bg-white rounded-3xl p-5 shadow-sm mb-5">
+
+        <div className="flex justify-between items-center mb-4">
+
+          <h2 className="font-semibold text-gray-800">
+            Simulación
+          </h2>
+
+          <button
+            onClick={volverModoReal}
+            className="bg-black text-white px-4 py-2 rounded-xl text-sm"
+          >
+            Datos reales
+          </button>
+
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+
+          <button
+            onClick={simularSequía}
+            className="bg-yellow-100 text-yellow-700 rounded-2xl p-3 text-sm font-medium"
+          >
+            🌵 Sequía
+          </button>
+
+          <button
+            onClick={simularCalor}
+            className="bg-red-100 text-red-700 rounded-2xl p-3 text-sm font-medium"
+          >
+            🌡️ Calor
+          </button>
+
+          <button
+            onClick={simularTanqueCritico}
+            className="bg-blue-100 text-blue-700 rounded-2xl p-3 text-sm font-medium"
+          >
+            🚨 Agua baja
+          </button>
+
+        </div>
+
+      </div>
+
+      {/* ÚLTIMA ACCIÓN */}
 
       <div className="bg-white rounded-3xl p-5 shadow-sm border border-green-100 mb-5">
 
@@ -68,6 +206,7 @@ export default function AlertasPage() {
       <div className="space-y-4">
 
         {
+
           eventos.length > 0 ? (
 
             eventos.map((evento, index) => (
@@ -94,16 +233,21 @@ export default function AlertasPage() {
                 <p className="text-gray-600 text-sm mt-2">
 
                   {
+
                     evento.mensaje.includes("humedad")
-                      ? "El sistema mantiene monitoreo constante del suelo."
+
+                      ? "El sistema detectó baja humedad en el suelo."
 
                       : evento.mensaje.includes("temperatura")
-                        ? "Se recomienda proteger el cultivo del calor extremo."
+
+                        ? "La temperatura puede afectar el cultivo."
 
                         : evento.mensaje.includes("agua")
-                          ? "El tanque requiere recarga para mantener el riego."
 
-                          : "AGROIA detectó actividad importante en el cultivo."
+                          ? "El tanque requiere recarga inmediata."
+
+                          : "AGROIA detectó actividad importante."
+
                   }
 
                 </p>
@@ -127,6 +271,7 @@ export default function AlertasPage() {
             </div>
 
           )
+
         }
 
       </div>
@@ -134,5 +279,6 @@ export default function AlertasPage() {
       <BottomNav />
 
     </main>
+
   );
 }

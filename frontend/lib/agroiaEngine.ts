@@ -13,8 +13,25 @@ export function evaluarSistema(datosSensores: any) {
         sueloSeco && !temperaturaAlta;
 
     let estadoTitulo = "SISTEMA ESTABLE";
+
     let estadoMensaje =
         "Todo funcionando correctamente";
+
+    let ultimaAccion =
+        "Monitoreo automático activo";
+
+    // =========================
+    // EVENTOS
+    // =========================
+
+    const eventos: {
+        tipo: string;
+        mensaje: string;
+    }[] = [];
+
+    // =========================
+    // LÓGICA
+    // =========================
 
     if (aguaCritica) {
 
@@ -23,9 +40,17 @@ export function evaluarSistema(datosSensores: any) {
         estadoMensaje =
             "Revisar nivel de agua inmediatamente";
 
+        ultimaAccion =
+            "Alerta de tanque crítico enviada";
+
+        eventos.push({
+            tipo: "critico",
+            mensaje: "Nivel de agua críticamente bajo",
+        });
+
     }
 
-    else if (temperaturaAlta) {
+    if (temperaturaAlta) {
 
         estadoTitulo =
             "🌡️ RIEGO SUSPENDIDO";
@@ -33,15 +58,31 @@ export function evaluarSistema(datosSensores: any) {
         estadoMensaje =
             "Temperatura demasiado alta";
 
+        ultimaAccion =
+            "Riego suspendido por temperatura extrema";
+
+        eventos.push({
+            tipo: "advertencia",
+            mensaje: "Temperatura excesiva detectada",
+        });
+
     }
 
-    else if (sueloSeco) {
+    if (sueloSeco) {
 
         estadoTitulo =
             "🌱 RIEGO AUTOMÁTICO";
 
         estadoMensaje =
             "El sistema activó el riego automáticamente";
+
+        ultimaAccion =
+            "Riego automático activado";
+
+        eventos.push({
+            tipo: "info",
+            mensaje: "Baja humedad detectada en el suelo",
+        });
 
     }
 
@@ -51,8 +92,12 @@ export function evaluarSistema(datosSensores: any) {
         aguaCritica,
         temperaturaAlta,
         riegoActivo,
+
         estadoTitulo,
         estadoMensaje,
+
+        eventos,
+        ultimaAccion,
 
     };
 
