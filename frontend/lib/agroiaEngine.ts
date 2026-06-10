@@ -10,7 +10,9 @@ export function evaluarSistema(datosSensores: any) {
         datosSensores.temperatura > 35;
 
     const riegoActivo =
-        sueloSeco && !temperaturaAlta;
+        sueloSeco &&
+        !temperaturaAlta &&
+        !aguaCritica;
 
     let estadoTitulo = "SISTEMA ESTABLE";
 
@@ -68,7 +70,7 @@ export function evaluarSistema(datosSensores: any) {
 
     }
 
-    if (sueloSeco) {
+    if (sueloSeco && !aguaCritica) {
 
         estadoTitulo =
             "🌱 RIEGO AUTOMÁTICO";
@@ -83,6 +85,19 @@ export function evaluarSistema(datosSensores: any) {
             tipo: "info",
             mensaje: "Baja humedad detectada en el suelo",
         });
+
+    }
+
+    if (aguaCritica && sueloSeco) {
+
+        estadoTitulo =
+            "💧 TANQUE VACÍO";
+
+        estadoMensaje =
+            "El suelo necesita riego pero no hay agua disponible";
+
+        ultimaAccion =
+            "Riego bloqueado por falta de agua";
 
     }
 
